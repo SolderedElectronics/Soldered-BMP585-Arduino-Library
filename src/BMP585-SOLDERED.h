@@ -123,9 +123,9 @@ class Soldered_BMP585
 
     /**
      * @brief                       Reads the data-ready / FIFO / OOR interrupt
-     *                              status. Useful for polling since this
-     *                              breakout doesn't expose the sensor's
-     *                              interrupt pin.
+     *                              status. Useful whether you're polling it
+     *                              directly or checking it after the sensor's
+     *                              physical interrupt pin fires.
      *
      * @param uint8_t *status       Pointer to store the interrupt status, see
      *                              the BMP5_INT_ASSERTED_* macros in bmp5_defs.h.
@@ -133,6 +133,38 @@ class Soldered_BMP585
      * @return                      BMP5_OK (0) on success, error code otherwise.
      */
     int8_t getInterruptStatus(uint8_t *status);
+
+    /**
+     * @brief                       Configures the behavior of the sensor's
+     *                              physical interrupt pin. Does not select
+     *                              which condition asserts it, see
+     *                              setInterruptSource().
+     *
+     * @param bmp5_intr_mode mode       BMP5_PULSED or BMP5_LATCHED.
+     * @param bmp5_intr_polarity pol    BMP5_ACTIVE_LOW or BMP5_ACTIVE_HIGH.
+     * @param bmp5_intr_drive drive     BMP5_INTR_PUSH_PULL or BMP5_INTR_OPEN_DRAIN.
+     * @param bool enable               True to enable the interrupt pin, false
+     *                                  to disable it.
+     *
+     * @return                      BMP5_OK (0) on success, error code otherwise.
+     */
+    int8_t configureInterrupt(enum bmp5_intr_mode mode, enum bmp5_intr_polarity pol, enum bmp5_intr_drive drive,
+                              bool enable);
+
+    /**
+     * @brief                       Selects which condition(s) assert the
+     *                              sensor's physical interrupt pin. Call
+     *                              configureInterrupt() first.
+     *
+     * @param bool dataReady        Assert on a new pressure/temperature reading.
+     * @param bool fifoFull         Assert when the FIFO buffer is full.
+     * @param bool fifoThreshold    Assert when the FIFO watermark is reached.
+     * @param bool pressureOOR      Assert when pressure goes out of range.
+     *
+     * @return                      BMP5_OK (0) on success, error code otherwise.
+     */
+    int8_t setInterruptSource(bool dataReady, bool fifoFull = false, bool fifoThreshold = false,
+                              bool pressureOOR = false);
 
     /**
      * @brief                       Reads pressure and temperature data and
